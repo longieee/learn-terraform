@@ -12,6 +12,10 @@ module "webserver_cluster" {
   instance_type = "t2.micro"
   min_size      = 2
   max_size      = 5
+  asg_custom_tags = {
+    Owner     = "dlongng"
+    ManagedBy = "terraform"
+  }
 }
 
 /* -------------------------------------------------------------------------- */
