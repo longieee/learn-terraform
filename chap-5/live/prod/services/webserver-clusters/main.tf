@@ -5,6 +5,8 @@ provider "aws" {
 module "webserver_cluster" {
   source = "../../../../modules/services/webserver-cluster"
 
+  server_text = "Hello, Production!"
+
   cluster_name           = "webservers-prod"
   db_remote_state_bucket = "dlongng-terraform-example-up-and-running-state"
   db_remote_state_key    = "prod/data-stores/mysql/terraform.tfstate"

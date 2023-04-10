@@ -43,6 +43,17 @@ variable "max_size" {
   default     = 10
 }
 
+variable "ami" {
+  description = "The AMI to run in the cluster"
+  type        = string
+  default     = "ami-062550af7b9fa7d05"
+}
+
+variable "server_text" {
+  description = "The text the web server should return"
+  type        = string
+  default     = "Hello there, World!"
+}
 
 /* -------------------------------------------------------------------------- */
 /*                             ASG configurations                             */

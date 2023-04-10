@@ -77,11 +77,12 @@ resource "aws_security_group_rule" "allow_all_outbound" {
 /*                                     ASG                                    */
 /* -------------------------------------------------------------------------- */
 resource "aws_launch_configuration" "example" {
-  image_id        = "ami-062550af7b9fa7d05"
+  image_id        = var.ami
   instance_type   = var.instance_type
   security_groups = [aws_security_group.instace.id]
 
   user_data = templatefile("${path.module}/user-data.sh", {
+    server_text = var.server_text
     server_port = var.server_port
     db_address  = data.terraform_remote_state.db.outputs.address
     db_port     = data.terraform_remote_state.db.outputs.port
@@ -94,6 +95,10 @@ resource "aws_launch_configuration" "example" {
 }
 
 resource "aws_autoscaling_group" "example" {
+  # Explicitly depend on the launch configuration's name so each time it's 
+  # replaced, this ASG is also replaced
+  name = "${var.cluster_name}-${aws_launch_configuration.example.name}"
+
   launch_configuration = aws_launch_configuration.example.name
   vpc_zone_identifier  = data.aws_subnets.default.ids
 
@@ -102,6 +107,16 @@ resource "aws_autoscaling_group" "example" {
 
   min_size = var.min_size
   max_size = var.max_size
+
+  # Wait for at least this many instances to pass health checks before 
+  # considering the ASG deployment complete
+  min_elb_capacity = var.min_size
+
+  # When replacing this ASG, create the replacement first, and only delete the 
+  # original after
+  lifecycle {
+    create_before_destroy = true
+  }
 
   tag {
     key                 = "Name"
@@ -136,7 +151,7 @@ resource "aws_autoscaling_schedule" "scale_out_during_business_hours" {
   desired_capacity      = 5
   recurrence            = "0 9 * * *"
 
-  autoscaling_group_name = module.webserver_cluster.asg_name
+  autoscaling_group_name = aws_autoscaling_group.example.name
 }
 
 resource "aws_autoscaling_schedule" "scale_in_at_night" {
@@ -148,7 +163,7 @@ resource "aws_autoscaling_schedule" "scale_in_at_night" {
   desired_capacity      = 2
   recurrence            = "0 17 * * *"
 
-  autoscaling_group_name = module.webserver_cluster.asg_name
+  autoscaling_group_name = aws_autoscaling_group.example.name
 }
 
 /* -------------------------------------------------------------------------- */
