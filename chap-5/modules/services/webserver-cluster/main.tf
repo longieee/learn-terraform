@@ -8,10 +8,6 @@ data "terraform_remote_state" "db" {
   }
 }
 
-provider "aws" {
-  region = "ap-southeast-1"
-}
-
 /* --------------------------------- Locals --------------------------------- */
 locals {
   http_port    = 80
@@ -111,6 +107,16 @@ resource "aws_autoscaling_group" "example" {
     key                 = "Name"
     value               = "${var.cluster_name}-terraform-asg-example"
     propagate_at_launch = true
+  }
+
+  dynamic "tag" {
+    for_each = var.asg_custom_tags
+
+    content {
+      key                 = tag.key
+      value               = tag.value
+      propagate_at_launch = true
+    }
   }
 }
 
