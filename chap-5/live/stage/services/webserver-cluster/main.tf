@@ -12,6 +12,13 @@ module "webserver_cluster" {
   instance_type = "t2.micro"
   min_size      = 1
   max_size      = 2
+
+  asg_custom_tags = {
+    Owner     = "dlongng"
+    ManagedBy = "terraform"
+  }
+
+  enable_autoscaling = false
 }
 
 # Expose extra port for testing
