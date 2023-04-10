@@ -5,7 +5,7 @@ provider "aws" {
 module "webserver_cluster" {
   source = "../../../../modules/services/webserver-cluster"
 
-  server_text = "Hello, Production!"
+  server_text = "Hello again, New Production with Zero_Downtime!"
 
   cluster_name           = "webservers-prod"
   db_remote_state_bucket = "dlongng-terraform-example-up-and-running-state"
