@@ -110,7 +110,11 @@ resource "aws_autoscaling_group" "example" {
   }
 
   dynamic "tag" {
-    for_each = var.asg_custom_tags
+    for_each = {
+      for key, value in var.asg_custom_tags :
+      key => value
+      if key != "Name"
+    }
 
     content {
       key                 = tag.key
