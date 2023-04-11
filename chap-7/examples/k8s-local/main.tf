@@ -17,7 +17,7 @@ provider "kubernetes" {
 }
 
 module "simple_webapp" {
-  source = "../../modules/services/k8s-app"
+  source = "../../modules/services/k8s-app-local"
 
   name           = "simple-webapp"
   image          = "training/webapp"
