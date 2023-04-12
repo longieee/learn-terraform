@@ -9,6 +9,10 @@ terraform {
   }
 }
 
+data "aws_ec2_instance_type" "instance" {
+  instance_type = var.instance_type
+}
+
 /* --------------------------------- Locals --------------------------------- */
 locals {
   tcp_protocol = "tcp"
@@ -45,6 +49,10 @@ resource "aws_launch_configuration" "example" {
   # Required when using a launch configuration with an auto scaling group.
   lifecycle {
     create_before_destroy = true
+    precondition {
+      condition     = data.aws_ec2_instance_type.instance.free_tier_eligible
+      error_message = "${var.instance_type} is not part of the AWS free tier"
+    }
   }
 }
 
@@ -58,6 +66,14 @@ resource "aws_autoscaling_group" "example" {
   name                 = var.cluster_name
   launch_configuration = aws_launch_configuration.example.name
   vpc_zone_identifier  = var.subnet_ids
+
+  lifecycle {
+    postcondition {
+      # You can use this special syntax `self` solely in postcondition, connection, and provisioner blocks
+      condition     = length(self.availability_zones) > 1
+      error_message = "You must use more than on AZ for high availability!"
+    }
+  }
 
   target_group_arns = var.target_group_arns
   health_check_type = var.health_check_type

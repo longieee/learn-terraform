@@ -19,12 +19,32 @@ variable "instance_type" {
   description = "The type of EC2 Instances to run (e.g. t2.micro)"
   type        = string
   default     = "t2.micro"
+
+  # Checking for instance type like this can become outdated quickly
+  # e.g. what if AWS change the instances of the free tier?
+
+  # condition in a validation block can only reference the surrounding input variable
+  # validation {
+  #   condition     = contains(["t2.micro", "t3.micro"], var.instance_type)
+  #   error_message = "Only free tier is allowed because I'm broke: t2.micro | t3.micro"
+  # }
 }
 
 variable "min_size" {
   description = "The minimum number of EC2 Instances in the ASG"
   type        = number
   default     = 1
+
+  # condition in a validation block can only reference the surrounding input variable
+  validation {
+    condition     = var.min_size > 0
+    error_message = "ASGs can't be empty or we'll have an outage"
+  }
+
+  validation {
+    condition     = var.min_size <= 2
+    error_message = "ASGs must have 2 or fewer instances to not incur any costs (I just want to use the free stuff to learn Terraform)"
+  }
 }
 
 variable "max_size" {
