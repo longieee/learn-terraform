@@ -2,12 +2,13 @@ provider "aws" {
   region = "ap-southeast-1"
 }
 
-module "webserver_cluster" {
-  source = "../../../../modules/services/webserver-cluster"
+module "hello_world_app" {
+  source = "github.com/longieee/learn-terraform//chap-8/modules/services/hello-world-app?ref=v1.8.4"
 
   server_text = "Hello again, New Production with Zero_Downtime!"
 
-  cluster_name           = "webservers-prod"
+  environment = "prod"
+
   db_remote_state_bucket = "dlongng-terraform-example-up-and-running-state"
   db_remote_state_key    = "prod/data-stores/mysql/terraform.tfstate"
 
