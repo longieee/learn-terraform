@@ -51,7 +51,7 @@ resource "aws_security_group_rule" "allow_all_outbound" {
 resource "aws_lb" "example" {
   name               = var.alb_name
   load_balancer_type = "application"
-  subnets            = data.aws_subnets.default.ids
+  subnets            = var.subnet_ids
   security_groups    = [aws_security_group.alb.id]
 }
 
